@@ -7,7 +7,9 @@ CONF="${CONF:-/etc/scansnap/scansnap.conf}"
 
 if [[ -f "$CONF" ]]; then
     # shellcheck source=/dev/null
+    set -a
     source "$CONF"
+    set +a
 fi
 
 RESOLUTION="${RESOLUTION:-300}"
@@ -62,37 +64,37 @@ if [[ "$PAGE_COUNT" -eq 0 ]]; then
     exit 0
 fi
 
-log "Scanned $PAGE_COUNT page(s), uploading to Paperless..."
+log "Scanned $PAGE_COUNT page(s), combining into multi-page TIFF..."
 
-FAILED=0
-while IFS= read -r tiff; do
-    PAGE_NAME=$(basename "$tiff" .tiff)
-    ATTEMPT=0
-    UPLOADED=false
+COMBINED="${WORKDIR}/scan-${TIMESTAMP}.tiff"
 
-    while (( ATTEMPT < RETRY_MAX )); do
-        if "$SCRIPT_DIR/upload-to-paperless.sh" "$tiff" "scan-${TIMESTAMP}-${PAGE_NAME}"; then
-            UPLOADED=true
-            break
-        fi
-        (( ATTEMPT++ ))
-        log "Upload attempt $ATTEMPT/$RETRY_MAX failed for $PAGE_NAME, retrying in ${RETRY_DELAY}s..."
-        sleep "$RETRY_DELAY"
-    done
+if [[ "$PAGE_COUNT" -eq 1 ]]; then
+    mv $(echo "$PAGES") "$COMBINED"
+else
+    tiffcp $(echo "$PAGES" | tr '\n' ' ') "$COMBINED"
+fi
 
-    if [[ "$UPLOADED" != "true" ]]; then
-        log "Upload failed for $PAGE_NAME, queuing for retry"
-        mv "$tiff" "$QUEUE_DIR/"
-        (( FAILED++ ))
+log "Uploading to Paperless..."
+
+ATTEMPT=0
+UPLOADED=false
+while (( ATTEMPT < RETRY_MAX )); do
+    if "$SCRIPT_DIR/upload-to-paperless.sh" "$COMBINED" "scan-${TIMESTAMP}"; then
+        UPLOADED=true
+        break
     fi
-done <<< "$PAGES"
+    (( ATTEMPT++ ))
+    log "Upload attempt $ATTEMPT/$RETRY_MAX failed, retrying in ${RETRY_DELAY}s..."
+    sleep "$RETRY_DELAY"
+done
 
-if [[ "$FAILED" -eq 0 ]]; then
-    log "All $PAGE_COUNT page(s) uploaded successfully"
+if [[ "$UPLOADED" == "true" ]]; then
+    log "Upload successful"
     if [[ "$CLEANUP_ON_SUCCESS" == "true" ]]; then
         rm -rf "$WORKDIR"
     fi
 else
-    log "$FAILED page(s) failed, moved to retry queue"
+    log "Upload failed after $RETRY_MAX attempts, queuing for retry"
+    mv "$COMBINED" "$QUEUE_DIR/"
     rm -rf "$WORKDIR"
 fi
