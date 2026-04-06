@@ -1,0 +1,2 @@
+# Fujitsu ScanSnap S1300i — grant scanner group access
+ATTRS{idVendor}=="04c5", ATTRS{idProduct}=="128d", MODE="0664", GROUP="scanner", ENV{libsane_matched}="yes"

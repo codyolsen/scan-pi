@@ -1,0 +1,32 @@
+# ScanSnap Pi — Configuration
+# Copy to /etc/scansnap/scansnap.conf and fill in your values
+
+# Paperless-ngx connection
+PAPERLESS_URL=
+PAPERLESS_TOKEN=
+
+# Scanner device (leave blank to auto-discover, or set from: scanimage -L)
+SCANNER_DEVICE=
+
+# Scan settings
+#   RESOLUTION: 50-600
+#   COLOR_MODE: Lineart, Gray, Color
+#   SOURCE:     "ADF Front", "ADF Back", "ADF Duplex"
+RESOLUTION=300
+COLOR_MODE=Gray
+SOURCE="ADF Duplex"
+
+# Upload settings (Paperless IDs, leave blank to skip)
+DEFAULT_TAG_IDS=
+DEFAULT_CORRESPONDENT_ID=
+DEFAULT_DOC_TYPE_ID=
+
+# Behavior
+RETRY_MAX=3
+RETRY_DELAY=30
+CLEANUP_ON_SUCCESS=true
+
+# Directories
+SCAN_DIR=/var/lib/scansnap/scans
+QUEUE_DIR=/var/lib/scansnap/upload-queue
+DEAD_LETTER_DIR=/var/lib/scansnap/dead-letter

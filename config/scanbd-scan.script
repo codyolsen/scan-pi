@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Called by scanbd when scan button is pressed
+# Resolve the invoking user's home directory from the scanbd config
+SCANSNAP_USER=$(grep -oP '^\s*user\s*=\s*\K\S+' /etc/scanbd/scanbd.conf 2>/dev/null)
+SCANSNAP_HOME=$(eval echo "~${SCANSNAP_USER}")
+"${SCANSNAP_HOME}/scansnap/scan-and-upload.sh" >> /var/log/scansnap.log 2>&1

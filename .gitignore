@@ -1,0 +1,6 @@
+*.tiff
+*.tif
+*.pdf
+*.conf
+!*.conf.example
+.claude/
