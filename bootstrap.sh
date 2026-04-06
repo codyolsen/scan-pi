@@ -21,28 +21,6 @@ apt update
 echo "==> Installing dependencies..."
 apt install -y sane-utils libsane1 libsane-common scanbd curl jq
 
-# --- Scanner firmware (ScanSnap S1300i) ---
-echo "==> Installing scanner firmware..."
-mkdir -p /usr/share/sane/epjitsu
-FIRMWARE_PATH="/usr/share/sane/epjitsu/1300i_0D12.nal"
-FIRMWARE_SHA256="cbea48c6cee675c2ea970944b49b805d665ee659f753a50b83c176973f507591"
-if [[ ! -f "$FIRMWARE_PATH" ]]; then
-    curl -sL -o "$FIRMWARE_PATH" \
-        'http://www.openfusion.net/public/files/1300i_0D12.nal'
-    # Verify download integrity
-    ACTUAL_SHA=$(sha256sum "$FIRMWARE_PATH" | cut -d' ' -f1)
-    if [[ "$ACTUAL_SHA" != "$FIRMWARE_SHA256" ]]; then
-        rm -f "$FIRMWARE_PATH"
-        echo "    ERROR: Firmware checksum mismatch — download may be corrupt" >&2
-        echo "    Expected: ${FIRMWARE_SHA256}" >&2
-        echo "    Got:      ${ACTUAL_SHA}" >&2
-    else
-        echo "    Downloaded and verified S1300i firmware"
-    fi
-else
-    echo "    Firmware already present"
-fi
-
 # --- User permissions ---
 echo "==> Adding ${INSTALL_USER} to scanner group..."
 usermod -aG scanner "$INSTALL_USER"

@@ -64,6 +64,13 @@ sudo nano /etc/scansnap/scansnap.conf
 
 Set `PAPERLESS_URL` and `PAPERLESS_TOKEN` (generate a token in Paperless at **Settings → Admin → Tokens**).
 
+If your scanner needs firmware (S1300i, S1300, S1100, S300):
+
+```bash
+cd scan-pi
+sudo ./scripts/install-firmware.sh s1300i
+```
+
 Plug in your ScanSnap via USB, load a document, press the button.
 
 ### Manual install
@@ -132,7 +139,8 @@ scan-pi/
 └── scripts/
     ├── scan-and-upload.sh        # Main scan workflow (called by scanbd)
     ├── upload-to-paperless.sh    # Paperless API upload helper
-    └── health-check.sh           # Diagnose setup issues
+    ├── health-check.sh           # Diagnose setup issues
+    └── install-firmware.sh       # Download scanner firmware (model-specific)
 ```
 
 ## Troubleshooting
@@ -178,7 +186,9 @@ Verify scanbd sees the scanner: `sudo systemctl restart scanbd && sudo journalct
 
 ## Supported ScanSnap models
 
-The S1300i is tested. Other epjitsu-backend models (S1300, S1100, S300) should work with the same setup — they use the same SANE backend and need their own `.nal` firmware file.
+The S1300i is tested. Firmware is installed separately via `scripts/install-firmware.sh` — it downloads from [GitHub releases](https://github.com/codyolsen/scan-pi/releases) and verifies via SHA256.
+
+Other epjitsu-backend models (S1300, S1100, S300) should work with the same setup — they use the same SANE backend and need their own `.nal` firmware file.
 
 For fujitsu-backend models (iX1600, iX1400, iX1300, fi-series), you'll need to modify the scanbd device config filter from `^epjitsu` to `^fujitsu` and no firmware file is needed.
 

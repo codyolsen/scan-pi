@@ -32,7 +32,7 @@ echo "==> Downloading..."
 rm -rf "$INSTALL_DIR"
 git clone -q --depth 1 -b "$BRANCH" "$REPO" "$INSTALL_DIR"
 
-# Run bootstrap
+# Run bootstrap (pass through INSTALL_FIRMWARE if set)
 cd "$INSTALL_DIR"
 ./bootstrap.sh
 

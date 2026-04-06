@@ -4,3 +4,4 @@
 *.conf
 !*.conf.example
 .claude/
+*.nal
