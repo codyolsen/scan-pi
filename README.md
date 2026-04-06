@@ -28,11 +28,10 @@ Press the button on your ScanSnap → Pi scans via USB → uploads to Paperless 
 
 ## How it works
 
-```
-[ScanSnap] --USB--> [Raspberry Pi] --WiFi--> [Paperless-ngx]
-                     scanbd detects           REST API upload
-                     button press,            (raw TIFF, Paperless
-                     SANE captures pages      handles OCR/deskew/cleanup)
+```mermaid
+flowchart LR
+    A["🖨️ ScanSnap\n(button press)"] -- USB --> B["🥧 Raspberry Pi\nscanbd → SANE → curl"]
+    B -- WiFi --> C["📄 Paperless-ngx\nOCR · deskew · PDF/A"]
 ```
 
 **scanbd** monitors the scanner's hardware button. On press, it triggers a script that runs `scanimage` to capture pages as TIFFs, then uploads each page directly to Paperless-ngx via its REST API. No intermediate PDF conversion — Paperless handles OCR, deskew, and archival formatting.
